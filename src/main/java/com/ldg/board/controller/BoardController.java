@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -37,22 +36,9 @@ public class BoardController {
 
     @Operation(summary = "Board Register", description = "POST 방식으로 게시글 등록")
     @PostMapping("/boards")
-    public ResponseEntity<?> register(@Valid @RequestBody BoardDTO boardDTO, BindingResult bindingResult) {
+    public ResponseEntity<Map<String, Long>> register(@Valid @RequestBody BoardDTO boardDTO) {
 
         log.info("board POST register : {}", boardDTO);
-
-        // 유효성 검사 에러가 발생한 경우
-        if (bindingResult.hasErrors()) {
-            log.info("has validation errors......");
-
-            // 필드별 에러 메시지를 정리해서 Map에 담기
-            Map<String, String> errorMap = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error -> {
-                errorMap.put(error.getField(), error.getDefaultMessage());
-            });
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
-        }
 
         Long bno = boardService.register(boardDTO);
 
@@ -79,23 +65,10 @@ public class BoardController {
 
     @Operation(summary = "Board Modify", description = "PUT 방식으로 특정 게시글 수정")
     @PutMapping("/boards/{bno}")
-    public ResponseEntity<?> modify(@PathVariable("bno") Long bno,
-                                    @Valid @RequestBody BoardDTO boardDTO,
-                                    BindingResult bindingResult) {
+    public ResponseEntity<Map<String, Object>> modify(@PathVariable("bno") Long bno,
+                                    @Valid @RequestBody BoardDTO boardDTO) {
 
         log.info("board modify dto: {}", boardDTO);
-
-        // 유효성 검사 에러가 발생한 경우
-        if (bindingResult.hasErrors()) {
-            log.info("has validation errors......");
-
-            Map<String, String> errorMap = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error -> {
-                errorMap.put(error.getField(), error.getDefaultMessage());
-            });
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
-        }
 
         boardService.modify(boardDTO);
 
