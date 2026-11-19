@@ -1,5 +1,6 @@
 package com.ldg.board.repository;
 
+import com.ldg.board.dto.BoardDTO;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
@@ -95,7 +96,7 @@ public class BoardReppositoryTests {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
 
-        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+        Page<BoardDTO> result = boardRepository.searchAll(types, keyword, pageable);
 
         // total pages
         log.info(result.getTotalPages());

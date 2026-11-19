@@ -2,7 +2,10 @@ package com.ldg.board.repository.search;
 
 import com.ldg.board.domain.Board;
 import com.ldg.board.domain.QBoard;
+import com.ldg.board.domain.QReply;
+import com.ldg.board.dto.BoardDTO;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,10 +22,15 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
     }
 
     @Override
-    public Page<Board> searchAll(String[] types, String keyword, Pageable pageable) {
+    public Page<BoardDTO> searchAll(String[] types, String keyword, Pageable pageable) {
 
         QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
         JPQLQuery<Board> query = from (board);
+        query.leftJoin(reply).on(reply.board.eq(board));
+
+        query.groupBy(board);
 
         // 검색 조건과 키워드가 있으면
         if ((types != null && types.length > 0) && keyword != null) {
@@ -49,13 +57,23 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         // bno > 0
         query.where(board.bno.gt(0L));
 
-        // paging
-        this.getQuerydsl().applyPagination(pageable, query);
+        JPQLQuery<BoardDTO> dtoQuery = query.select(Projections.bean(BoardDTO.class,
+                board.bno,
+                board.title,
+                board.content,
+                board.writer,
+                board.regDate,
+                board.modDate,
+                reply.rno.count().as("replyCount")
+        ));
 
-        List<Board> list = query.fetch();
+        // paging
+        this.getQuerydsl().applyPagination(pageable, dtoQuery);
+
+        List<BoardDTO> dtolist = dtoQuery.fetch();
 
         long count = query.fetchCount();
 
-        return new PageImpl<>(list, pageable, count);
+        return new PageImpl<>(dtolist, pageable, count);
     }
 }

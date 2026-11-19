@@ -27,6 +27,8 @@ public class BoardDTO {
 
     private String writer;
 
+    private Long replyCount;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 

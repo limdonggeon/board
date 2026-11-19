@@ -75,14 +75,11 @@ public class BoardServiceImpl implements BoardService {
         String keyword = pageRequestDTO.getKeyword();
         Pageable pageable = pageRequestDTO.getPageable("bno");
 
-        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
-
-        List<BoardDTO> dtoList = result.getContent().stream()
-                .map(board -> modelMapper.map(board,BoardDTO.class)).collect(Collectors.toList());
+        Page<BoardDTO> result = boardRepository.searchAll(types, keyword, pageable);
 
         return PageResponseDTO.<BoardDTO>withAll()
                 .pageRequestDTO(pageRequestDTO)
-                .dtoList(dtoList)
+                .dtoList(result.getContent())
                 .total((int)result.getTotalElements())
                 .build();
     }
